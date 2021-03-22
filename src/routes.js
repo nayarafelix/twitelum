@@ -4,8 +4,8 @@ import { Switch, Route, Redirect } from "react-router-dom";
 // Páginas
 import HomePage from "./pages/HomePage";
 import LoginPage from "./pages/LoginPage";
-import TestHook from "./TestHook.js";
-import TestCalculator from "./StateElevator/TestCalculator";
+import Hook from "./Hook.js";
+import Calculator from "./StateElevator/Calculator";
 
 class PrivateRoute extends React.Component {
     estaAutenticado = () => {
@@ -31,8 +31,8 @@ class Roteamento extends React.Component {
             <Switch>
                 <PrivateRoute path="/" component={HomePage} exact={true}/>
                 <Route path="/login" component={LoginPage}/>
-                <Route path="/testhook" component={TestHook}/>
-                <Route path="/testelevator" component={TestCalculator}/>
+                <Route path="/hook" component={Hook}/>
+                <Route path="/calculator" component={Calculator}/>
             </Switch>
         );
     }
