@@ -1,10 +1,20 @@
 import React, { Component, Fragment } from 'react'
 import Cabecalho from '../../components/Cabecalho'
 import Widget from '../../components/Widget'
+import { NotificacaoContext } from '../../context/NotificacaoContext'
 
 import './loginPage.css'
 
 class LoginPage extends Component {
+    static contextType = NotificacaoContext;
+
+    fazerLogin = (evento) => {
+        evento.preventDefault();
+
+        this.props.history.push('/');
+        this.context.setMsg("Bem vindo ao Twitelum, login foi um sucesso!");
+    }
+
     render() {
         return (
             <Fragment>
@@ -26,7 +36,7 @@ class LoginPage extends Component {
                                     Mensagem de erro!
                                 </div> */}
                                 <div className="loginPage__inputWrap">
-                                    <button className="loginPage__btnLogin" type="submit">
+                                    <button onClick={this.fazerLogin} className="loginPage__btnLogin" type="submit">
                                         Logar
                                     </button>
                                 </div>
