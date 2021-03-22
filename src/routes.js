@@ -1,5 +1,5 @@
 import React from "react";
-import { Switch, Route } from "react-router-dom";
+import { Switch, Route, Redirect } from "react-router-dom";
 
 // Páginas
 import HomePage from "./pages/HomePage";
@@ -7,11 +7,29 @@ import LoginPage from "./pages/LoginPage";
 import TestHook from "./TestHook.js";
 import TestCalculator from "./StateElevator/TestCalculator";
 
+class PrivateRoute extends React.Component {
+    estaAutenticado = () => {
+        return (localStorage.getItem('TOKEN')) ? true : false
+    }
+
+    render() {
+        const { component: Component, ...props } = this.props
+
+        if (this.estaAutenticado()) {
+            console.log("Oi")
+            return <Component {...props} />
+        } else {
+            console.log("Hello")
+            return <Redirect to="/login"/>
+        }
+    }
+}
+
 class Roteamento extends React.Component {
     render() {
         return (
             <Switch>
-                <Route path="/" component={HomePage} exact={true}/>
+                <PrivateRoute path="/" component={HomePage} exact={true}/>
                 <Route path="/login" component={LoginPage}/>
                 <Route path="/testhook" component={TestHook}/>
                 <Route path="/testelevator" component={TestCalculator}/>
