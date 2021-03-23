@@ -6,15 +6,64 @@ import { LoginService } from "../../services/LoginService.js";
 
 import './loginPage.css' 
 
+const InputFormField = ({ id, label, errors, values, onChange }) => {
+    return (
+        <div className="loginPage__inputWrap">
+            <label className="loginPage__label" htmlFor={id}>
+                { label }
+            </label>
+            <input 
+                className="loginPage__input" 
+                type="text" 
+                id={id} 
+                name={id} 
+                value={values[id]} 
+                onChange={onChange}
+            />
+            <p style={{ color: "red" }}>{ errors[id] && errors[id]}</p>
+        </div>
+    )
+}
+
 class LoginPage extends Component {
     static contextType = NotificacaoContext;
+
+    constructor() {
+        super();
+        this.state = {
+            values: {
+                inputLogin: "",
+                inputSenha: ""
+            },
+            error: {}
+        };
+    }
+
+    formValidations = () => {
+        const { inputLogin, inputSenha } = this.state.values;
+        const errors = {};
+
+        if (!inputLogin) errors.inputLogin = "Esse campo é obrigatório";
+        if (!inputSenha) errors.inputSenha = "Esse campo é obrigatório";
+
+        this.setState({ errors });
+    }
+
+    onFormFieldChange = ({ target }) => {
+        const value = target.value;
+        const name = target.name;
+        const values = { ...this.state.values, [name]: value };
+        this.setState({ values }, () => {
+            this.formValidations();
+        });
+    }
 
     fazerLogin = infosDoEvento => {
         infosDoEvento.preventDefault();
 
         const dadosDeLogin = {
-            login: this.refs.inputLogin.value,
-            senha: this.refs.inputSenha.value
+            login: this.state.value.inputLogin,
+            senha: this.state.value.inputSenha
         }
 
         LoginService.logar(dadosDeLogin)
@@ -37,14 +86,20 @@ class LoginPage extends Component {
                         <Widget>
                             <h2 className="loginPage__title">Seja bem vindo!</h2>
                             <form onSubmit={this.fazerLogin} className="loginPage__form" action="/">
-                                <div className="loginPage__inputWrap">
-                                    <label className="loginPage__label" htmlFor="login">Login</label> 
-                                    <input ref="inputLogin" className="loginPage__input" type="text" id="login" name="login"/>
-                                </div>
-                                <div className="loginPage__inputWrap">
-                                    <label className="loginPage__label" htmlFor="senha">Senha</label> 
-                                    <input ref="inputSenha" className="loginPage__input" type="password" id="senha" name="senha"/>
-                                </div>
+                                <InputFormField
+                                    id="inputLogin" 
+                                    label="Login: " 
+                                    error={this.state.errors}
+                                    value={this.state.values}
+                                    onChange={this.onFormFieldChange}
+                                />
+                                <InputFormField 
+                                    id="inputSenha"
+                                    label="Senha: " 
+                                    error={this.state.errors}
+                                    value={this.state.values}
+                                    onChange={this.onFormFieldChange} 
+                                />
                                 {/* <div className="loginPage__errorBox">
                                     Mensagem de erro!
                                 </div> */}
