@@ -17,10 +17,8 @@ class PrivateRoute extends React.Component {
         const { component: Component, ...props } = this.props
 
         if (this.estaAutenticado()) {
-            console.log("Oi")
             return <Component {...props} />
         } else {
-            console.log("Hello")
             return <Redirect to="/login"/>
         }
     }
