@@ -11,13 +11,9 @@ class HomePage extends Component {
         super();
         this.state = {
             novoTweet: "",
-            tweets: ["Tweet 1", "Tweet 2", "Tweet 3"]
+            tweets: []
         }
         this.alteraEstado = this.alteraEstado.bind(this)
-    }
-
-    alteraEstado(evento) {
-        this.setState({ novoTweet: evento.target.value })
     }
 
     ehValido() {
@@ -25,33 +21,56 @@ class HomePage extends Component {
         return tweetLength > 0 && tweetLength < 140;
     }
 
-    enviaTweet = (evento) => {
-        evento.preventDefault();
-        let texto = this.state.novoTweet;
-        
-        if(this.ehValido()) {
-            this.setState({
-                tweets: [texto, ...this.state.tweets],
-                novoTweet: ""
-            })
-        }
-        
+    alteraEstado(evento) {
+        const novoTexto = evento.target.value
+        this.setState({ novoTweet: novoTexto })
     }
 
-    listTweets = () => {
-        let tweets = this.state.tweets;
-
-        if (tweets.length > 0) {
-            return tweets.map((tweet, index) => { return (<Tweet conteudo={tweet} key={"Chave" + index} /> )})
-        } else {
-            return (
-                <article className="tweet">
-                    <p className="tweet__conteudo">
-                        <span>Nenhum tweet para ser apresentado. Crie seu primeiro tweet.</span>
-                    </p>
-                </article>
-            )
+    adicionaTweet = (infosDoEvento) => {
+        infosDoEvento.preventDefault()
+        if(this.state.novoTweet.length > 0) {
+            const URL = `https://twitelum-api.herokuapp.com/tweets?X-AUTH-TOKEN=${localStorage.getItem('TOKEN')}`
+            const objeto = {
+                method: 'POST',
+                headers: {
+                    'Content-type': 'application/json'
+                },
+                body: JSON.stringify({ conteudo: this.state.novoTweet })
+            }
+            fetch(URL, objeto)
+                .then((respostaDoServer) => {
+                    return respostaDoServer.json()
+                })
+                .then((tweetVindoDoServidor) => {
+                    console.log(tweetVindoDoServidor)
+                    this.setState({
+                        tweets: [tweetVindoDoServidor, ...this.state.tweets]
+                    })
+                })
         }
+    }
+
+    hasTwittes = () => {
+        let retorno = this.state.tweets.map( (tweet) => {
+            return <Tweet conteudo={tweet.conteudo} usuario={tweet.usuario} key={tweet._id} />})
+
+        if(this.state.tweets.length === 0){
+            retorno =  <article>
+                <p>Você ainda não efetuou nenhum twitte, que tal twitter algo!</p>
+            </article>
+        }
+
+        return retorno;
+    }
+
+    componentDidMount() {
+        fetch(`https://twitelum-api.herokuapp.com/tweets?X-AUTH-TOKEN=${localStorage.getItem('TOKEN')}`)
+            .then(response => response.json())
+            .then((tweets) => {
+            this.setState({
+                tweets
+            })
+        })
     }
 
     render() {
@@ -63,7 +82,7 @@ class HomePage extends Component {
             <div className="container">
                 <Dashboard>
                     <Widget>
-                        <form onSubmit={this.enviaTweet} className="novoTweet">
+                        <form onSubmit={this.adicionaTweet} className="novoTweet">
                             <div className="novoTweet__editorArea">
                                 <span className={`novoTweet__status ${!this.ehValido() ? 'novoTweet__status--invalido' : ''}`}>
                                     { this.state.novoTweet.length }/140
@@ -85,7 +104,7 @@ class HomePage extends Component {
                 <Dashboard posicao="centro">
                     <Widget>
                         <div className="tweetsArea">
-                            { this.listTweets() }
+                            { this.hasTwittes() }
                         </div>
                     </Widget>
                 </Dashboard>
